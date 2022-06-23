@@ -22,15 +22,6 @@ function getDungeonPosByIndex(index) {
   }
 }
 
-function mountFirstStage() {
-  currentStage.position = getPosByIndex(PATH.linkStartPos);
-  currentStage.destination = getPosByIndex(PATH.steps[0]);
-
-  if (PATH.linkStartPos != 3 && PATH.willEntryInDungeon) {
-    currentStage.dungeonIndex = PATH.linkStartPos;
-  }
-}
-
 function debug(...msg) {
   if (VERBOSE) {
     console.log(">", ...msg);
@@ -270,6 +261,7 @@ function sleep(ms) {
 }
 
 let firstStage = true;
+let onPath = 0;
 
 function setup() {
   debug("Iniciando algoritmo!");
@@ -294,40 +286,65 @@ function setup() {
   stepByStepButton.style("background-color", col);
   stepByStepButton.style("font-size", "16px");
   stepByStepButton.position(45, 740);
-  // stepByStepButton.mousePressed(searchAlgorithmStepByStep);
+  stepByStepButton.mousePressed(unpause);
+
+  col = color(180, 23, 40, 80);
+  stepByStepButton = createButton("Próximo caminho");
+  stepByStepButton.size(400, 100);
+  stepByStepButton.style("background-color", col);
+  stepByStepButton.style("font-size", "16px");
+  stepByStepButton.position(45, 620);
+  stepByStepButton.mousePressed(nextPath);
 
   debug("Interface gerada!");
 
   generate_matrixWSpots();
   debug("Matriz mapeada", matrix_with_spots);
-  logger("Estágio inicial", currentStage);
-  mountFirstStage();
 
-  if (debugMode == 0) {
-    stepByStepButton.mousePressed(unpause);
+  generate_dungeonMatrixWSpots(dungeonWSpots1, 0);
+  generate_dungeonMatrixWSpots(dungeonWSpots2, 1);
+  generate_dungeonMatrixWSpots(dungeonWSpots3, 2);
 
-    generate_dungeonMatrixWSpots(dungeonWSpots1, 0);
-    generate_dungeonMatrixWSpots(dungeonWSpots2, 1);
-    generate_dungeonMatrixWSpots(dungeonWSpots3, 2);
-
-    setInterval(() => {
-      if (!paused) {
-        searchAlgorithmStepByStep();
-      }
-    }, CLOCK_INTERVAL_IN_MS);
-  } else if (debugMode == 1) {
-    stepDungeonMap();
-  } else if (debugMode == 2) {
-    while (firstStage) {
-      searchAlgorithmStepByStep();
-    }
-  }
+  runMain();
 }
 
 function unpause() {
-  if (paused) {
-    paused = false;
+  if (paths[onPath].paused) {
+    paths[onPath].paused = false;
   }
+}
+
+function nextPath() {
+  // if (!paths[onPath].finished) {
+  //   return;
+  // }
+
+  clear();
+  draw();
+  paused = true;
+  onPath++;
+  if (onPath < paths.length) {
+    currentStage = {
+      dungeonIndex: null,
+      step: paths[onPath].linkStartPos,
+      nextStep: paths[onPath].steps[0],
+      position: {
+        i: 0,
+        j: 0,
+      },
+      destination: {
+        i: 0,
+        j: 0,
+      },
+      finished: function () {
+        return (
+          this.position.j == this.destination.i &&
+          this.position.i == this.destination.j
+        );
+      },
+    };
+  }
+  console.log("Executando caminho:", onPath);
 }
 
 function initMatrixs() {
@@ -336,4 +353,21 @@ function initMatrixs() {
   getDungeon(dungeon1, 1);
   getDungeon(dungeon2, 2);
   getDungeon(dungeon3, 3);
+}
+
+let paths = [
+  new Path(3, [0, 1, 2, 4], false),
+  new Path(3, [0, 2, 1, 4], false),
+  new Path(3, [1, 0, 2, 4], false),
+  new Path(3, [1, 2, 0, 4], false),
+  new Path(3, [2, 0, 1, 4], false),
+  new Path(3, [2, 1, 0, 4], false),
+];
+
+function runMain() {
+  setInterval(() => {
+    if (!paths[onPath].paused && onPath < paths.length) {
+      searchAlgorithmStepByStep(paths[onPath]);
+    }
+  }, CLOCK_INTERVAL_IN_MS);
 }

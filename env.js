@@ -1,20 +1,3 @@
-// linkStartPos: 0 | 1 | 2 | 3
-// 0: Primeira dungeon        (32, 5)
-// 1: Segunda dungeon         (17, 39)
-// 2: Terceira dungeon        (1, 24)
-// 3: Posição padrão do link  (27, 24)
-// 4: Casa                    (5, 6)
-
-// steps: ordem dos caminhos
-// garantir que seja um caminho valido
-
-// willEntryInDungeon: vai entrar na dungeon
-PATH = {
-  linkStartPos: 3,
-  steps: [0, 1, 2, 4],
-  willEntryInDungeon: true,
-};
-
 let SQUARE_SIZE_X = 19.4;
 let SQUARE_SIZE_Y = 20.8;
 let MAP_SQUARE_SIZE = 20;
@@ -35,7 +18,6 @@ let dungeonMatrix3 = [];
 let stageCount = 0;
 
 let isOnTraceback = true;
-let paused = true;
 
 VERBOSE = false;
 
@@ -94,26 +76,6 @@ DUNGEON_3_INSIDE = {
   EXIT: {
     i: 19,
     j: 15,
-  },
-};
-
-let currentStage = {
-  dungeonIndex: null,
-  step: PATH.linkStartPos,
-  nextStep: PATH.steps[0],
-  position: {
-    i: 0,
-    j: 0,
-  },
-  destination: {
-    i: 0,
-    j: 0,
-  },
-  finished: function () {
-    return (
-      this.position.j == this.destination.i &&
-      this.position.i == this.destination.j
-    );
   },
 };
 

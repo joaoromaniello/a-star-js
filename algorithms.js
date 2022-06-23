@@ -2,37 +2,37 @@ let homeMultiplier = 30;
 let dungeonMultiplier = 30;
 
 let firstTime = true;
-let stages = [];
-let end = false;
 
-function searchAlgorithmStepByStep() {
-  if (firstTime) {
-    stages.push(new Stage(currentStage.position, currentStage.destination));
+function searchAlgorithmStepByStep(path) {
+  if (path.stages.length == 0) {
+    path.stages.push(
+      new Stage(path.current.position, path.current.destination)
+    );
     firstTime = false;
   }
 
-  if (currentStage.finished()) {
+  let stage = path.currentStage();
+  if (path.current.finished()) {
     firstStage = false;
-    let stage = stages[stages.length - 1];
 
     if (isOnTraceback) {
       stage.onTraceback = true;
-      paused = true;
-      end = true;
+      path.paused = true;
+      path.end = true;
 
       traceBack(stage);
       updateCanvas(stage);
       isOnTraceback = false;
     } else {
       isOnTraceback = true;
-      paused = false;
-      end = false;
-      goToNextStage(stage);
+      path.paused = false;
+      path.end = false;
+      goToNextStage(path);
     }
   }
 
-  if (!end) {
-    runningForCurrentStage();
+  if (!path.end) {
+    runningForCurrentStage(path);
   }
 }
 
@@ -45,10 +45,13 @@ function traceBack(stage) {
   }
 }
 
-function runningForCurrentStage() {
-  if (currentStage.finished()) return;
+function runningForCurrentStage(path) {
+  let stage = path.currentStage();
+  if (path.current.finished()) {
+    path.finished = true;
+    return;
+  }
 
-  let stage = stages[stages.length - 1];
   let currentNode;
   let objectiveNode;
 
@@ -56,18 +59,14 @@ function runningForCurrentStage() {
     currentNode = getEnterNodeByDungeonIndex(stage.dungeonIndex);
     objectiveNode = getExitNodeByDungeonIndex(stage.dungeonIndex);
   } else {
-    currentNode = getNodeByIndex(currentStage.step);
-    objectiveNode = getNodeByIndex(currentStage.nextStep);
+    currentNode = getNodeByIndex(path.current.step);
+    objectiveNode = getNodeByIndex(path.current.nextStep);
   }
 
   let start = currentNode;
   for (i = 0; i < stage.openSet.length; i++) {
     fill(0, 128, 128);
-    rect(
-      start.i * 15 + DUNGEON_OFFSET_X,
-      start.j * 15 + DUNGEON_OFFSET_Y,
-      15
-    );
+    rect(start.i * 15 + DUNGEON_OFFSET_X, start.j * 15 + DUNGEON_OFFSET_Y, 15);
   }
 
   start.h = calcHeuristicaByNode(
@@ -104,8 +103,8 @@ function runningForCurrentStage() {
 
   stage.updatePosition(currentNode.j, currentNode.i);
 
-  currentStage.position.i = currentNode.j;
-  currentStage.position.j = currentNode.i;
+  path.current.position.i = currentNode.j;
+  path.current.position.j = currentNode.i;
 
   let neighbs = currentNode.neighb;
   for (var i = 0; i < neighbs.length; i++) {
@@ -137,9 +136,6 @@ function runningForCurrentStage() {
       neighb.parent = currentNode;
     }
   }
-
-  console.log("Atual: ", currentNode);
-  console.log("Vizinhos: ", neighbs);
 
   stage.iterator++;
   updateCanvas(stage);
@@ -209,42 +205,43 @@ function isInSet(obj1, obj2) {
   return false;
 }
 
-function goToNextStage(stage) {
-  if (PATH.steps.length == 1) {
-    end = true;
+function goToNextStage(path) {
+  if (path.steps.length == 1) {
+    path.finished = true;
     return;
   }
 
   stageCount++;
   logger("Indo para o próximo estágio!");
-  logger("#" + stageCount, stage);
+  logger("#" + stageCount, path.currentStage());
 
-  setNextStage(stage);
-  let nextStage = new Stage(currentStage.position, currentStage.destination);
-  nextStage.dungeonIndex = currentStage.dungeonIndex;
-  stages.push(nextStage);
+  setNextStage(path);
+  let nextStage = new Stage(path.current.position, path.current.destination);
+  nextStage.dungeonIndex = path.current.dungeonIndex;
+  path.stages.push(nextStage);
 }
 
-function setNextStage(stage) {
-  let current = PATH.steps[0];
-  let destination = PATH.steps[1];
+function setNextStage(path) {
+  let stage = path.currentStage();
+  let current = path.steps[0];
+  let destination = path.steps[1];
 
-  if (PATH.willEntryInDungeon && stage.dungeonIndex == null) {
-    currentStage.dungeonIndex = current;
-    currentStage.step = null;
-    currentStage.nextStep = null;
+  if (stage.willEntryInDungeon && stage.dungeonIndex == null) {
+    path.current.dungeonIndex = current;
+    path.current.step = null;
+    path.current.nextStep = null;
 
     let dungeonPos = getDungeonPosByIndex(current);
-    currentStage.position = dungeonPos.ENTER;
-    currentStage.destination = dungeonPos.EXIT;
+    path.current.position = dungeonPos.ENTER;
+    path.current.destination = dungeonPos.EXIT;
   } else {
-    currentStage.dungeonIndex = PATH.willEntryInDungeon ? current : null;
-    currentStage.step = current;
-    currentStage.nextStep = destination;
-    currentStage.position = getPosByIndex(current);
-    currentStage.destination = getPosByIndex(destination);
+    path.current.dungeonIndex = stage.willEntryInDungeon ? current : null;
+    path.current.step = current;
+    path.current.nextStep = destination;
+    path.current.position = getPosByIndex(current);
+    path.current.destination = getPosByIndex(destination);
 
-    PATH.steps = PATH.steps.slice(1);
+    path.steps = path.steps.slice(1);
   }
 }
 
