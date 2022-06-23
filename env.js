@@ -35,9 +35,9 @@ let dungeonMatrix3 = [];
 let stageCount = 0;
 
 let isOnTraceback = true;
-let paused = false;
+let paused = true;
 
-VERBOSE = true;
+VERBOSE = false;
 
 LINK_POS = {
   i: 27,
@@ -70,15 +70,15 @@ DUNGEON_1_INSIDE = {
     j: 14,
   },
   EXIT: {
-    i: 13,
-    j: 3,
+    i: 3,
+    j: 13,
   },
 };
 
 DUNGEON_2_INSIDE = {
   ENTER: {
-    i: 13,
-    j: 25,
+    i: 25,
+    j: 13,
   },
   EXIT: {
     i: 2,
@@ -88,12 +88,12 @@ DUNGEON_2_INSIDE = {
 
 DUNGEON_3_INSIDE = {
   ENTER: {
-    i: 14,
-    j: 25,
+    i: 25,
+    j: 14,
   },
   EXIT: {
-    i: 15,
-    j: 19,
+    i: 19,
+    j: 15,
   },
 };
 
@@ -111,10 +111,8 @@ let currentStage = {
   },
   finished: function () {
     return (
-      (this.position.j == this.destination.i &&
-        this.position.i == this.destination.j) ||
-      (this.position.i == this.destination.i &&
-        this.position.j == this.destination.j)
+      this.position.j == this.destination.i &&
+      this.position.i == this.destination.j
     );
   },
 };

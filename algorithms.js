@@ -1,5 +1,5 @@
 let homeMultiplier = 30;
-let dungeonMultiplier = 400;
+let dungeonMultiplier = 30;
 
 let firstTime = true;
 let stages = [];
@@ -12,6 +12,7 @@ function searchAlgorithmStepByStep() {
   }
 
   if (currentStage.finished()) {
+    firstStage = false;
     let stage = stages[stages.length - 1];
 
     if (isOnTraceback) {
@@ -60,6 +61,15 @@ function runningForCurrentStage() {
   }
 
   let start = currentNode;
+  for (i = 0; i < stage.openSet.length; i++) {
+    fill(0, 128, 128);
+    rect(
+      start.i * 15 + DUNGEON_OFFSET_X,
+      start.j * 15 + DUNGEON_OFFSET_Y,
+      15
+    );
+  }
+
   start.h = calcHeuristicaByNode(
     start,
     objectiveNode,
@@ -92,7 +102,7 @@ function runningForCurrentStage() {
     stage.addWinnerPath(currentNode);
   }
 
-  stage.updatePosition(currentNode.i, currentNode.j);
+  stage.updatePosition(currentNode.j, currentNode.i);
 
   currentStage.position.i = currentNode.j;
   currentStage.position.j = currentNode.i;
@@ -115,7 +125,7 @@ function runningForCurrentStage() {
       neighb.f = neighb.g + neighb.h;
       neighb.parent = currentNode;
       stage.addOpenSet(neighb);
-    } else if (inArray(neighb) && neighb.g < currentNode.g) {
+    } else if (inArray(stage.openSet, neighb) && neighb.g < currentNode.g) {
       neighb.h = calcHeuristicaByNode(
         neighb,
         objectiveNode,
@@ -128,8 +138,10 @@ function runningForCurrentStage() {
     }
   }
 
-  stage.iterator++;
+  console.log("Atual: ", currentNode);
+  console.log("Vizinhos: ", neighbs);
 
+  stage.iterator++;
   updateCanvas(stage);
 }
 
@@ -177,9 +189,10 @@ function inArray(arr, elm) {
 }
 
 function calcHeuristicaByNode(node1, node2, onDungeon) {
-  return !!onDungeon
-    ? dungeonMultiplier
-    : homeMultiplier * heuristica(node1, node2);
+  return (
+    (!!onDungeon ? dungeonMultiplier : homeMultiplier) *
+    heuristica(node1, node2)
+  );
 }
 
 function isSameSpot(node1, node2) {
@@ -206,7 +219,6 @@ function goToNextStage(stage) {
   logger("Indo para o próximo estágio!");
   logger("#" + stageCount, stage);
 
-  draw();
   setNextStage(stage);
   let nextStage = new Stage(currentStage.position, currentStage.destination);
   nextStage.dungeonIndex = currentStage.dungeonIndex;

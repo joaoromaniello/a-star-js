@@ -50,7 +50,7 @@ class Spot2 {
     this.parent = [];
   }
 
-  addNeighb = function (matrix) {
+  addNeighb(matrix) {
     if (this.i < 27) {
       if (matrix[this.i + 1][this.j].g < 100) {
         this.neighb.push(matrix[this.i + 1][this.j]);
@@ -78,5 +78,5 @@ class Spot2 {
         this.neighbQT = this.neighbQT + 1;
       }
     }
-  };
+  }
 }

@@ -132,8 +132,8 @@ function writeText(winnerPath) {
 }
 
 function drawDungeon(matrixOfTypes, type) {
-  let j = 0;
   let i = 0;
+  let j = 0;
   let square = 15;
 
   if (type == 0) {
@@ -263,7 +263,7 @@ function drawDungeonPath(stage) {
   drawDungeon(dungeonMatrix, 0);
   drawPendant(stage.dungeonIndex);
 
-  fill(255, 0, 0, 90);
+  fill(255, 0, 0);
   rect(
     stage.origin.i * 15 + DUNGEON_OFFSET_X,
     stage.origin.j * 15 + DUNGEON_OFFSET_Y,
@@ -272,15 +272,15 @@ function drawDungeonPath(stage) {
 
   for (let i = 0; i < stage.winnerPath.length; i++) {
     rect(
-      stage.winnerPath[i].i * 15 + DUNGEON_OFFSET_X,
-      stage.winnerPath[i].j * 15 + DUNGEON_OFFSET_Y,
+      stage.winnerPath[i].j * 15 + DUNGEON_OFFSET_X,
+      stage.winnerPath[i].i * 15 + DUNGEON_OFFSET_Y,
       15
     );
-    rect(
-      stage.origin.i * 15 + DUNGEON_OFFSET_X,
-      stage.origin.j * 15 + DUNGEON_OFFSET_Y,
-      15
-    );
+    // rect(
+    //   stage.origin.i * 15 + DUNGEON_OFFSET_X,
+    //   stage.origin.j * 15 + DUNGEON_OFFSET_Y,
+    //   15
+    // );
   }
 }
 

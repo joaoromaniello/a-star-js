@@ -68,6 +68,7 @@ function getDungeon(dungeon, dungeonType) {
       point(x / 2, y / 2);
       x += 2 * 20;
     }
+
     if (dungeonType == 1) dungeonMatrix1.push(dungeonColorArrayAxis1);
     if (dungeonType == 2) dungeonMatrix2.push(dungeonColorArrayAxis2);
     if (dungeonType == 3) dungeonMatrix3.push(dungeonColorArrayAxis3);
@@ -237,13 +238,18 @@ function generate_dungeonMatrixWSpots(dungeon, type) {
       if (type == 0 && dungeonMatrix1[i][j] == "parede") {
         dungeon[i][j].g = 10000;
       }
-      if (type == 1 && dungeonMatrix1[i][j] == "parede") {
+      if (type == 1 && dungeonMatrix2[i][j] == "parede") {
         dungeon[i][j].g = 10000;
       }
 
-      if (type == 2 && dungeonMatrix1[i][j] == "parede") {
+      if (type == 2 && dungeonMatrix3[i][j] == "parede") {
         dungeon[i][j].g = 10000;
       }
+    }
+  }
+
+  for (var i = 0; i < 28; i++) {
+    for (var j = 0; j < 28; j++) {
       dungeon[i][j].addNeighb(dungeon);
     }
   }
@@ -262,6 +268,8 @@ function dist(xA, yA, xB, yB) {
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+let firstStage = true;
 
 function setup() {
   debug("Iniciando algoritmo!");
@@ -286,25 +294,34 @@ function setup() {
   stepByStepButton.style("background-color", col);
   stepByStepButton.style("font-size", "16px");
   stepByStepButton.position(45, 740);
-  stepByStepButton.mousePressed(unpause);
+  // stepByStepButton.mousePressed(searchAlgorithmStepByStep);
 
   debug("Interface gerada!");
 
   generate_matrixWSpots();
   debug("Matriz mapeada", matrix_with_spots);
-
-  generate_dungeonMatrixWSpots(dungeonWSpots1, 0);
-  generate_dungeonMatrixWSpots(dungeonWSpots2, 1);
-  generate_dungeonMatrixWSpots(dungeonWSpots3, 2);
-
-  mountFirstStage();
   logger("Estágio inicial", currentStage);
+  mountFirstStage();
 
-  setInterval(() => {
-    if (!paused) {
+  if (debugMode == 0) {
+    stepByStepButton.mousePressed(unpause);
+
+    generate_dungeonMatrixWSpots(dungeonWSpots1, 0);
+    generate_dungeonMatrixWSpots(dungeonWSpots2, 1);
+    generate_dungeonMatrixWSpots(dungeonWSpots3, 2);
+
+    setInterval(() => {
+      if (!paused) {
+        searchAlgorithmStepByStep();
+      }
+    }, CLOCK_INTERVAL_IN_MS);
+  } else if (debugMode == 1) {
+    stepDungeonMap();
+  } else if (debugMode == 2) {
+    while (firstStage) {
       searchAlgorithmStepByStep();
     }
-  }, CLOCK_INTERVAL_IN_MS);
+  }
 }
 
 function unpause() {
