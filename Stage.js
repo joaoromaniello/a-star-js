@@ -4,7 +4,8 @@ class Stage {
     this.destination = destination;
     this.iterator = 0;
     this.dungeonIndex = null;
-    this.onTraceback = false;
+    this.onTraceback = true;
+    this.onDungeon = false;
     this.openSet = [];
     this.closedSet = [];
     this.winnerPath = [];

@@ -2,6 +2,9 @@ let SQUARE_SIZE_X = 19.4;
 let SQUARE_SIZE_Y = 20.8;
 let MAP_SQUARE_SIZE = 20;
 
+let HOME_MULTIPLIER = 30;
+let DUNGEON_MULTIPLIER = 30;
+
 let matrixOfCost = [];
 var matrix = [];
 
@@ -14,10 +17,6 @@ var DUNGEON_OFFSET_Y = 220;
 let dungeonMatrix1 = [];
 let dungeonMatrix2 = [];
 let dungeonMatrix3 = [];
-
-let stageCount = 0;
-
-let isOnTraceback = true;
 
 VERBOSE = false;
 

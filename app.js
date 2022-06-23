@@ -323,27 +323,7 @@ function nextPath() {
   draw();
   paused = true;
   onPath++;
-  if (onPath < paths.length) {
-    currentStage = {
-      dungeonIndex: null,
-      step: paths[onPath].linkStartPos,
-      nextStep: paths[onPath].steps[0],
-      position: {
-        i: 0,
-        j: 0,
-      },
-      destination: {
-        i: 0,
-        j: 0,
-      },
-      finished: function () {
-        return (
-          this.position.j == this.destination.i &&
-          this.position.i == this.destination.j
-        );
-      },
-    };
-  }
+
   console.log("Executando caminho:", onPath);
 }
 
@@ -355,13 +335,24 @@ function initMatrixs() {
   getDungeon(dungeon3, 3);
 }
 
+// 1440 primeira dungeon
+// 1260 segunda dungeon
+// 1020 segunda dungeon
+// 3720 total
+
 let paths = [
-  new Path(3, [0, 1, 2, 4], false),
-  new Path(3, [0, 2, 1, 4], false),
-  new Path(3, [1, 0, 2, 4], false),
-  new Path(3, [1, 2, 0, 4], false),
-  new Path(3, [2, 0, 1, 4], false),
-  new Path(3, [2, 1, 0, 4], false),
+  // Caminho 1 - Distancia 6400
+  new Path(3, [0, 1, 2, 4], true), // <- Esse é o melhor caminho
+  // Caminho 2 - Distancia 6670
+  // new Path(3, [0, 2, 1, 4], false),
+  // Caminho 3 - Distancia 6500
+  // new Path(3, [1, 0, 2, 4], false),
+  // Caminho 4 - Distancia 6560
+  // new Path(3, [1, 2, 0, 4], false),
+  // Caminho 5 - Distancia 6880
+  // new Path(3, [2, 0, 1, 4], false),
+  // Caminho 6 - Distancia 6690
+  // new Path(3, [2, 1, 0, 4], false),
 ];
 
 function runMain() {
