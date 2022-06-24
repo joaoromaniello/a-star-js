@@ -25,6 +25,8 @@ class Path {
     this.paused = true;
     this.end = false;
     this.finished = false;
+    this.distance = 0;
+    this.isOnTraceback = true;
   }
 
   buildFirstCurrent() {

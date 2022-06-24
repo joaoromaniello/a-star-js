@@ -23,14 +23,14 @@ function draw() {
   noLoop();
 }
 
-function updateCanvas(stage) {
+function updateCanvas(path) {
   background(70);
   drawMap(matrix);
   drawCaves();
   drawHome();
-  writeText(stage.winnerPath);
+  writeText(path);
   drawPos();
-  drawPath(stage);
+  drawPath(path);
 
   noLoop();
 }
@@ -104,7 +104,7 @@ function drawHome() {
   image(home, 6 * 20 + 518.5, 5 * 20 + 15);
 }
 
-function writeText(winnerPath) {
+function writeText(path) {
   fill(255);
   stroke(0);
   rect(70, 270, 400, 200);
@@ -112,22 +112,29 @@ function writeText(winnerPath) {
   textSize(32);
   fill(0);
   text("Trabalho 1 – Busca Heurística:", 45, 90);
+  fill(255);
   textSize(18);
   text("Feito por:", 1700, 815);
   textSize(12);
   text("Alisson Guimarães", 1700, 830);
   text("João Antônio Nardini", 1700, 845);
   text("Vinicio Bernardes", 1700, 860);
+  fill(0);
   textSize(20);
   text("Custo do caminho até o momento (g + h)", 80, 300);
-  if (winnerPath == null) {
+  if (path == null) {
     text("f = 0", 83, 335);
     text("g = 0", 80, 360);
     text("h = 0", 80, 385);
+    fill(255, 0, 0);
+    text("Total = 0", 80, 450);
   } else {
+    let winnerPath = path.currentStage().winnerPath;
     text("f = " + getTotalF(winnerPath), 83, 335);
     text("g = " + getTotalG(winnerPath), 80, 360);
     text("h = " + getTotalH(winnerPath), 80, 385);
+    fill(255, 0, 0);
+    text("Total = " + path.distance, 80, 450);
   }
 }
 
@@ -211,9 +218,10 @@ function drawPos() {
   }
 }
 
-function drawPath(stage) {
+function drawPath(path) {
+  let stage = path.currentStage();
   if (stage.dungeonIndex != null) {
-    drawMapPath(stages[stages.length - 2]);
+    drawMapPath(path.stages[path.stages.length - 2]);
     drawDungeonPath(stage);
   } else {
     drawMapPath(stage);
@@ -221,7 +229,7 @@ function drawPath(stage) {
 }
 
 function drawMapPath(stage) {
-  fill(255, 0, 0);
+  fill(208, 80, 146);
 
   for (let i = 0; i < stage.winnerPath.length; i++) {
     rect(
@@ -241,13 +249,11 @@ function drawMapPath(stage) {
       stage.origin.i * 20 + STD_OFFSET_X,
       stage.origin.j * 20 + STD_OFFSET_Y
     );
-    fill(255, 0, 0);
   }
 
   if (stage.onTraceback) {
-    fill(0, 0, 255);
     for (let i = 0; i < stage.bestSet.length; i++) {
-      fill(0, 0, 255);
+      fill(255, 60, 60);
       rect(
         stage.bestSet[i].j * 20 + STD_OFFSET_X,
         stage.bestSet[i].i * 20 + STD_OFFSET_Y,
@@ -263,7 +269,7 @@ function drawDungeonPath(stage) {
   drawDungeon(dungeonMatrix, 0);
   drawPendant(stage.dungeonIndex);
 
-  fill(255, 0, 0);
+  fill(255, 0, 0, 95);
   rect(
     stage.origin.i * 15 + DUNGEON_OFFSET_X,
     stage.origin.j * 15 + DUNGEON_OFFSET_Y,
@@ -281,6 +287,18 @@ function drawDungeonPath(stage) {
     //   stage.origin.j * 15 + DUNGEON_OFFSET_Y,
     //   15
     // );
+  }
+
+  if (stage.onTraceback) {
+    fill(0, 0, 255);
+    for (let i = 0; i < stage.bestSet.length; i++) {
+      fill(0, 0, 255, 97);
+      rect(
+        stage.bestSet[i].j * 15 + DUNGEON_OFFSET_X,
+        stage.bestSet[i].i * 15 + DUNGEON_OFFSET_Y,
+        15
+      );
+    }
   }
 }
 

@@ -1,30 +1,21 @@
-let homeMultiplier = 30;
-let dungeonMultiplier = 30;
-
-let firstTime = true;
-
 function searchAlgorithmStepByStep(path) {
   if (path.stages.length == 0) {
     path.stages.push(
       new Stage(path.current.position, path.current.destination)
     );
-    firstTime = false;
   }
 
   let stage = path.currentStage();
-  if (path.current.finished()) {
-    firstStage = false;
-
-    if (isOnTraceback) {
+  if (path.current.finished() && !path.finished) {
+    if (path.isOnTraceback) {
       stage.onTraceback = true;
       path.paused = true;
       path.end = true;
-
-      traceBack(stage);
-      updateCanvas(stage);
-      isOnTraceback = false;
+      path.distance += traceBack(stage);
+      updateCanvas(path);
+      path.isOnTraceback = false;
     } else {
-      isOnTraceback = true;
+      path.isOnTraceback = true;
       path.paused = false;
       path.end = false;
       goToNextStage(path);
@@ -38,11 +29,15 @@ function searchAlgorithmStepByStep(path) {
 
 function traceBack(stage) {
   let parentNode = stage.winnerPath[stage.winnerPath.length - 1];
+  let total = parentNode.costOfSpot || 10;
   stage.addBestSet(parentNode);
   while (parentNode.parent) {
     parentNode = parentNode.parent;
     stage.addBestSet(parentNode);
+    total += parentNode.costOfSpot || 10;
   }
+
+  return stage.dungeonIndex != null ? 2 * total : total;
 }
 
 function runningForCurrentStage(path) {
@@ -109,10 +104,6 @@ function runningForCurrentStage(path) {
   let neighbs = currentNode.neighb;
   for (var i = 0; i < neighbs.length; i++) {
     var neighb = neighbs[i];
-    if (neighb.g >= 10000) {
-      continue;
-    }
-
     if (!inArray(stage.openSet, neighb) && !inArray(stage.closedSet, neighb)) {
       neighb.h = calcHeuristicaByNode(
         neighb,
@@ -138,7 +129,7 @@ function runningForCurrentStage(path) {
   }
 
   stage.iterator++;
-  updateCanvas(stage);
+  updateCanvas(path);
 }
 
 function getNodeByIndex(step) {
@@ -186,7 +177,7 @@ function inArray(arr, elm) {
 
 function calcHeuristicaByNode(node1, node2, onDungeon) {
   return (
-    (!!onDungeon ? dungeonMultiplier : homeMultiplier) *
+    (!!onDungeon ? DUNGEON_MULTIPLIER : HOME_MULTIPLIER) *
     heuristica(node1, node2)
   );
 }
@@ -211,9 +202,7 @@ function goToNextStage(path) {
     return;
   }
 
-  stageCount++;
   logger("Indo para o próximo estágio!");
-  logger("#" + stageCount, path.currentStage());
 
   setNextStage(path);
   let nextStage = new Stage(path.current.position, path.current.destination);
@@ -226,7 +215,7 @@ function setNextStage(path) {
   let current = path.steps[0];
   let destination = path.steps[1];
 
-  if (stage.willEntryInDungeon && stage.dungeonIndex == null) {
+  if (path.willEntryInDungeon && stage.dungeonIndex == null) {
     path.current.dungeonIndex = current;
     path.current.step = null;
     path.current.nextStep = null;
@@ -235,12 +224,11 @@ function setNextStage(path) {
     path.current.position = dungeonPos.ENTER;
     path.current.destination = dungeonPos.EXIT;
   } else {
-    path.current.dungeonIndex = stage.willEntryInDungeon ? current : null;
+    path.current.dungeonIndex = null;
     path.current.step = current;
     path.current.nextStep = destination;
     path.current.position = getPosByIndex(current);
     path.current.destination = getPosByIndex(destination);
-
     path.steps = path.steps.slice(1);
   }
 }
@@ -248,7 +236,7 @@ function setNextStage(path) {
 function getTotalG(winnerPath) {
   let custo = 0;
   for (let i = 0; i < winnerPath.length; i++) {
-    custo = custo + winnerPath[i].costOfSpot;
+    custo = custo + (winnerPath[i].costOfSpot || 10);
   }
 
   return custo;
@@ -256,7 +244,9 @@ function getTotalG(winnerPath) {
 
 function getTotalH(winnerPath) {
   let custo = 0;
-  for (let i = 0; i < winnerPath.length; i++) custo = winnerPath[i].h;
+  for (let i = 0; i < winnerPath.length; i++) {
+    custo = winnerPath[i].h;
+  }
 
   return custo;
 }
