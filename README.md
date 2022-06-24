@@ -1,6 +1,10 @@
 # Busca heurística
 
 Trabalho de cunho educacional que consiste em implementar e fazer experimentos com o algoritmo A\*.
+Este trabalho foi realizado pelos alunos:
+
+Alisson Guimarães de Paula, de matricula 11811BCC037
+João Antônio Nardini Romanielo, de matricula 11811BCC028
 
 ## Descrição
 
